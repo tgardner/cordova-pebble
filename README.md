@@ -3,7 +3,17 @@ cordova-pebble
 
 Implementation of the Pebble SDK for Cordova.
 
-### Usage ###
+## Installation ##
+
+#### Cordova CLI ####
+
+`cordova plugin add https://github.com/tgardner/cordova-pebble.git`
+
+#### Telerik AppBuilder ####
+
+`appbuilder plugin fetch https://github.com/tgardner/cordova-pebble.git`
+
+## Usage ##
 
 Set the UUID of your companion app, and register callbacks for connect/disconnect events from watches:
 
@@ -45,7 +55,7 @@ Pebble.sendAppMessage({0: "hello"},
 
 Receive messages from the watch:
 ```javascript
-Pebble.onDataReceived(function(message){
+Pebble.onAppMessageReceived(function(message){
     console.log(message);
 });
 ```
