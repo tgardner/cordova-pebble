@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:rim="http://www.blackberry.com/ns/widgets"
+        id="net.trentgardner.cordova.pebble"
+        version="0.0.1">
+
+    <name>Pebble Connector</name>
+    <description>Cordova plugin to implement the Pebble SDK</description>
+    <author>Trent Gardner</author>
+    
+    <js-module src="www/pebble.js" name="Pebble">
+        <clobbers target="Pebble" />
+    </js-module>
+
+    <engines>
+        <engine name="cordova" version=">=3.1.0" />
+    </engines>
+
+    <platform name="ios">
+
+        <!-- config file -->
+        <config-file target="config.xml" parent="/*">
+            <feature name="pebble">
+                <param name="ios-package" value="Pebble" />
+            </feature>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="UISupportedExternalAccessoryProtocols">
+            <array>
+                <string>com.getpebble.public</string>
+            </array>
+        </config-file>
+
+
+        <header-file src="src/ios/Pebble.h" />
+        <source-file src="src/ios/Pebble.m" />
+
+        <framework src="ExternalAccessory.framework" />
+        <framework src="libz.dylib" />
+        <framework src="CoreBluetooth.framework" />
+        <framework src="CoreMotion.framework" />
+        <framework src="CFNetwork.framework" />
+        <framework src="MessageUI.framework" />
+
+        <framework src="lib/ios/PebbleKit.framework" custom="true"/>
+        <framework src="lib/ios/PebbleVendor.framework" custom="true"/>
+
+    </platform>
+
+</plugin>
