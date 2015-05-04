@@ -56,14 +56,17 @@ var Pebble = {
     },
 
 
-    sendAppMessage: function(appMessage, success, failure) {
+    sendAppMessage: function(message, success, failure) {
+        if(typeof(message) !== 'object') {
+            message = {0 : message};
+        }
 
         exec(
             success,
             errorCallback(failure),
             service,
             'sendAppMessage',
-            [ JSON.stringify(appMessage) ]
+            [ JSON.stringify(message) ]
         );
 
     },
@@ -71,7 +74,7 @@ var Pebble = {
     onAppMessageReceived: function(success, failure) {
 
         exec(
-            messageCallback,
+            success,
             errorCallback(failure),
             service,
             'onAppMessageReceived',
