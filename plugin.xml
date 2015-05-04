@@ -17,6 +17,19 @@
         <engine name="cordova" version=">=3.1.0" />
     </engines>
 
+    <platform name="android">
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="pebble" >
+                <param name="android-package" value="net.trentgardner.cordova.pebble.PebblePlugin"/>
+            </feature>
+        </config-file>
+        
+        <source-file src="lib/android/pebblekit-3.0.0-eclipse.jar" target-dir="libs/" />
+        <source-file src="src/android/PebblePlugin.java" target-dir="src/net/trentgardner/cordova/pebble" />
+
+    </platform>
+
     <platform name="ios">
 
         <!-- config file -->

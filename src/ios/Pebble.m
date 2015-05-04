@@ -1,25 +1,49 @@
 
 #import "Pebble.h"
 
-@implementation Pebble
+@implementation Pebble {
+    NSMutableDictionary* watches;
+    
+    NSMutableArray* connectCallbacks;
+    NSMutableArray* messageCallbacks;
+}
 
-@synthesize connectCallbackId;
-@synthesize messageCallbackId;
-
--(void)onConnect:(CDVInvokedUrlCommand *)command
+- (void)pluginInitialize
 {
-    self.connectCallbackId = command.callbackId;
     
+    [[PBPebbleCentral defaultCentral] setDelegate:self];
+    watches = [[NSMutableDictionary alloc] init];
+    connectCallbacks = [[NSMutableArray alloc] init];
+    messageCallbacks = [[NSMutableArray alloc] init];
+    
+}
+
+-(void)setAppUUID:(CDVInvokedUrlCommand *)command
+{
     NSString *uuidString = [command.arguments objectAtIndex:0];
-    
-    NSLog(@"PGPebble setAppUUID() with %@", uuidString);
     
     uuid_t uuidBytes;
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     [uuid getUUIDBytes:uuidBytes];
-    NSLog(@"%@", uuid);
     
-    [[PBPebbleCentral defaultCentral] setAppUUID:[NSData dataWithBytes:uuidBytes length:16]];
+    CDVPluginResult* result;
+    @try {
+        NSLog(@"PGPebble setAppUUID() with %@", uuidString);
+        [[PBPebbleCentral defaultCentral] setAppUUID:[NSData dataWithBytes:uuidBytes length:16]];
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    }
+    @catch (NSException *exception) {
+        NSDictionary *data = [[NSDictionary alloc] initWithObjectsAndKeys:exception.reason,@"reason", nil];
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary: data];
+    }
+    @finally {
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    }
+}
+
+-(void)onConnect:(CDVInvokedUrlCommand *)command
+{
+    [connectCallbacks addObject: command.callbackId];
     
     NSArray *connected = [[PBPebbleCentral defaultCentral] connectedWatches];
     if ([connected count] > 0) {
@@ -33,7 +57,7 @@
 
 -(void)onAppMessageReceived:(CDVInvokedUrlCommand *)command
 {
-    self.messageCallbackId = command.callbackId;
+    [messageCallbacks addObject: command.callbackId];
 }
 
 -(void)launchApp:(CDVInvokedUrlCommand *)command
@@ -107,27 +131,23 @@
 
 #pragma mark utils
 
-- (void)pluginInitialize
-{
-    
-    [[PBPebbleCentral defaultCentral] setDelegate:self];
-    watches = [[NSMutableDictionary alloc] init];
-    
-}
-
 - (void) listenToWatch:(PBWatch*) watch
 {
     [watch appMessagesAddReceiveUpdateHandler:^BOOL(PBWatch *watch, NSDictionary *update) {
         NSLog(@"Pebble: received message: %@", update);
         
-        NSMutableDictionary* returnInfo = [[NSMutableDictionary alloc] init];
-        [returnInfo setObject:[watch name] forKey:@"watch"];
+        NSMutableDictionary* returnInfo = [[NSMutableDictionary alloc]
+                                           initWithObjectsAndKeys: [watch name], @"watch", nil];
         
         for (NSNumber *key in update) {
             [returnInfo setObject:[update objectForKey:key] forKey:[key stringValue]];
         }
         
-        [self notifyKeepCallback:self.messageCallbackId withStatus:CDVCommandStatus_OK andWithData:returnInfo];
+        for(NSString* messageCallback in messageCallbacks) {
+            [self notifyKeepCallback:messageCallback
+                          withStatus:CDVCommandStatus_OK
+                         andWithData:returnInfo];
+        }
         
         return YES;
     }];
@@ -146,20 +166,11 @@
 - (void)notifyBooleanCallback:(NSString*) callbackId
                    withResult:(BOOL)success
 {
-    NSMutableDictionary* data = [NSMutableDictionary dictionaryWithCapacity:1];
-    CDVPluginResult* result = NULL;
+    NSString *value = (success) ? @"true" : @"false";
+    NSDictionary* data = [[NSDictionary alloc] initWithObjectsAndKeys: value, @"success", nil];
     
-    if(success) {
-        [data setObject:@"true" forKey:@"success"];
-        
-        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:data];
-    } else {
-        NSLog(@"error launching Pebble app");
-        
-        [data setObject:@"false" forKey:@"success"];
-        
-        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:data];
-    }
+    CDVCommandStatus status = (success) ? CDVCommandStatus_OK : CDVCommandStatus_ERROR;
+    CDVPluginResult *result = [CDVPluginResult resultWithStatus:status messageAsDictionary:data];
     
     [self.commandDelegate sendPluginResult:result callbackId:callbackId];
 }
@@ -184,20 +195,28 @@
     
     [self listenToWatch:watch];
     
-    NSMutableDictionary* returnInfo = [NSMutableDictionary dictionaryWithCapacity:1];
-    [returnInfo setObject:[watch name] forKey:@"name"];
+    NSMutableDictionary* returnInfo = [[NSMutableDictionary alloc]
+                                initWithObjectsAndKeys:[watch name],@"name", nil];
     
-    [self notifyKeepCallback:self.connectCallbackId withStatus:CDVCommandStatus_OK andWithData:returnInfo];
+    for(NSString *connectCallback in connectCallbacks) {
+        [self notifyKeepCallback: connectCallback
+                      withStatus: CDVCommandStatus_OK
+                     andWithData: returnInfo];
+    }
 }
 
 -(void)watchDisconnected:(PBWatch*) watch
 {
     [watches removeObjectForKey:[watch name]];
     
-    NSMutableDictionary* returnInfo = [NSMutableDictionary dictionaryWithCapacity:1];
-    [returnInfo setObject:[watch name] forKey:@"name"];
+    NSMutableDictionary* returnInfo = [[NSMutableDictionary alloc]
+                                       initWithObjectsAndKeys:[watch name],@"name", nil];
     
-    [self notifyKeepCallback:self.connectCallbackId withStatus:CDVCommandStatus_ERROR andWithData:returnInfo];
+    for(NSString *connectCallback in connectCallbacks) {
+        [self notifyKeepCallback: connectCallback
+                      withStatus: CDVCommandStatus_ERROR
+                     andWithData: returnInfo];
+    }
 }
 
 #pragma mark delegate methods

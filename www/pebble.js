@@ -1,16 +1,33 @@
 var exec = cordova.require('cordova/exec'),
     service = 'pebble';
 
-var Pebble = {
+function errorCallback(callback) {
+    return callback || function(e) {
+        console.log(e);
+    };
+}
 
-    onConnect: function(uuid, connectCallback, disconnectCallback) {
+var Pebble = {
+    setAppUUID: function(uuid, success, failure) {
 
         exec(
-            connectCallback,
-            disconnectCallback,
+            success,
+            errorCallback(failure),
+            service,
+            'setAppUUID',
+            [ uuid ]
+        );
+
+    },
+
+    onConnect: function(success, failure) {
+
+        exec(
+            success,
+            errorCallback(failure),
             service,
             'onConnect',
-            [ uuid ]
+            []
         );
 
     },
@@ -19,7 +36,7 @@ var Pebble = {
 
         exec(
             success,
-            failure,
+            errorCallback(failure),
             service,
             'launchApp',
             []
@@ -30,7 +47,7 @@ var Pebble = {
 
         exec(
             success,
-            failure,
+            errorCallback(failure),
             service,
             'killApp',
             []
@@ -39,11 +56,11 @@ var Pebble = {
     },
 
 
-    sendAppMessage: function(appMessage, connectCallback, disconnectCallback) {
+    sendAppMessage: function(appMessage, success, failure) {
 
         exec(
-            connectCallback,
-            disconnectCallback,
+            success,
+            errorCallback(failure),
             service,
             'sendAppMessage',
             [ JSON.stringify(appMessage) ]
@@ -51,11 +68,11 @@ var Pebble = {
 
     },
 
-    onAppMessageReceived: function(messageCallback, errorCallback) {
+    onAppMessageReceived: function(success, failure) {
 
         exec(
             messageCallback,
-            errorCallback,
+            errorCallback(failure),
             service,
             'onAppMessageReceived',
             []
@@ -64,6 +81,5 @@ var Pebble = {
     }
 
 };
-
 
 module.exports = Pebble;
