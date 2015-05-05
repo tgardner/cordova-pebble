@@ -177,30 +177,10 @@ public class PebblePlugin extends CordovaPlugin {
         }
     }
 
-    private void appMessageReceived(PebbleDictionary data) {
-        JSONObject result = new JSONObject();
-
-        try {
-            String json = data.toJsonString();
-            JSONArray values = new JSONArray(json);
-            for(int i = 0; i < values.length(); ++i) {
-                JSONObject value = values.getJSONObject(i);
-                String key = String.valueOf(value.getInt("key"));
-                String type = value.getString("type");
-
-                if(type.equals("int") || value.equals("uint")) {
-                    result.put(key, value.getInt("value"));
-                } else {
-                    result.put(key, value.getString("value"));
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+    private void appMessageReceived(JSONObject data) {
         synchronized (messageCallbacks) {
             for(CallbackContext messageCallback : messageCallbacks) {
-                keepSuccessCallback(messageCallback, result);
+                keepSuccessCallback(messageCallback, data);
             }
         }
     }
@@ -234,7 +214,9 @@ public class PebblePlugin extends CordovaPlugin {
                                      CallbackContext callbackContext,
                                      JSONObject obj) {
 
-        PluginResult r = new PluginResult(status, obj);
+        PluginResult r = (obj == null) ?
+                new PluginResult(status) :
+                new PluginResult(status, obj);
         r.setKeepCallback(true);
         callbackContext.sendPluginResult(r);
 
@@ -246,8 +228,35 @@ public class PebblePlugin extends CordovaPlugin {
         }
 
         @Override
-        public void receiveData(Context context, int i, PebbleDictionary pebbleDictionary) {
-            appMessageReceived(pebbleDictionary);
+        public void receiveData(Context context,
+                                int transactionId,
+                                PebbleDictionary data) {
+
+            JSONObject result = new JSONObject();
+
+            try {
+
+                String json = data.toJsonString();
+                JSONArray values = new JSONArray(json);
+
+                for(int i = 0; i < values.length(); ++i) {
+                    JSONObject value = values.getJSONObject(i);
+                    String key = String.valueOf(value.getInt("key"));
+                    String type = value.getString("type");
+
+                    if(type.equals("int") || value.equals("uint")) {
+                        result.put(key, value.getInt("value"));
+                    } else {
+                        result.put(key, value.getString("value"));
+                    }
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            appMessageReceived(result);
+
         }
     }
 }
