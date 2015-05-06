@@ -255,6 +255,7 @@ public class PebblePlugin extends CordovaPlugin {
                 e.printStackTrace();
             }
 
+            PebbleKit.sendAckToPebble(getApplicationContext(), transactionId);
             appMessageReceived(result);
 
         }
