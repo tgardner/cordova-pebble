@@ -26,18 +26,13 @@
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
     [uuid getUUIDBytes:uuidBytes];
     
-    CDVPluginResult* result;
     @try {
         NSLog(@"PGPebble setAppUUID() with %@", uuidString);
         [[PBPebbleCentral defaultCentral] setAppUUID:[NSData dataWithBytes:uuidBytes length:16]];
-        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self notifyCallback:command.callbackId isSuccess:true];
     }
     @catch (NSException *exception) {
-        NSDictionary *data = [[NSDictionary alloc] initWithObjectsAndKeys:exception.reason,@"reason", nil];
-        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary: data];
-    }
-    @finally {
-        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        [self notifyCallback:command.callbackId isSuccess:false withReason:exception.reason];
     }
 }
 
@@ -70,7 +65,11 @@
         PBWatch* watch = [watches objectForKey:key];
         
         [watch appMessagesLaunch:^(PBWatch *watch, NSError *error) {
-            [self notifyBooleanCallback:command.callbackId withResult:!error];
+            
+            [self notifyCallback:command.callbackId
+                       isSuccess:!error
+                      withReason:(error ? error.description : nil)];
+            
         }];
     }
     
@@ -86,7 +85,11 @@
         PBWatch* watch = [watches objectForKey:key];
         
         [watch appMessagesKill:^(PBWatch *watch, NSError *error) {
-            [self notifyBooleanCallback:command.callbackId withResult:!error];
+            
+            [self notifyCallback:command.callbackId
+                       isSuccess:!error
+                      withReason:(error ? error.description : nil)];
+            
         }];
     }
 }
@@ -117,13 +120,11 @@
         PBWatch* watch = [watches objectForKey:key];
         
         [watch appMessagesPushUpdate:update onSent:^(PBWatch *watch, NSDictionary *update, NSError *error) {
-            if(!error) {
-                NSLog(@"Pebble: Successfully sent message.");
-                [self notifyBooleanCallback:command.callbackId withResult:true];
-            } else {
-                NSLog(@"Pebble: Error sending message: %@", error);
-                [self notifyErrorCallback:command.callbackId withReason:error.description];
-            }
+            
+            [self notifyCallback:command.callbackId
+                       isSuccess:!error
+                      withReason:(error ? error.description : nil)];
+            
         }];
     }
 }
@@ -163,20 +164,24 @@
     [self.commandDelegate sendPluginResult:result callbackId:callbackId];
 }
 
-- (void) notifyErrorCallback:(NSString*) callbackId
-                  withReason:(NSString*) reason
+- (void)notifyCallback:(NSString*) callbackId
+             isSuccess:(BOOL)success
 {
-    
-    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:reason];
-    [self.commandDelegate sendPluginResult:result callbackId:callbackId];
-    
+    [self notifyCallback:callbackId isSuccess:success withReason:nil];
 }
 
-- (void)notifyBooleanCallback:(NSString*) callbackId
-                   withResult:(BOOL)success
+- (void)notifyCallback:(NSString*) callbackId
+             isSuccess:(BOOL)success
+            withReason:(NSString*)reason
 {
     CDVCommandStatus status = (success) ? CDVCommandStatus_OK : CDVCommandStatus_ERROR;
-    CDVPluginResult *result = [CDVPluginResult resultWithStatus:status];
+    CDVPluginResult *result;
+    
+    if(reason) {
+        result = [CDVPluginResult resultWithStatus:status messageAsString:reason];
+    } else {
+        result = [CDVPluginResult resultWithStatus:status];
+    }
     
     [self.commandDelegate sendPluginResult:result callbackId:callbackId];
 }
