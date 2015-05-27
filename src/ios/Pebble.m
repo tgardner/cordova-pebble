@@ -4,8 +4,8 @@
 @implementation Pebble {
     NSMutableDictionary* watches;
     
-    NSMutableArray* connectCallbacks;
-    NSMutableArray* messageCallbacks;
+    NSString* connectCallbackId;
+    NSString* messageCallbackId;
 }
 
 - (void)pluginInitialize
@@ -13,8 +13,6 @@
     
     [[PBPebbleCentral defaultCentral] setDelegate:self];
     watches = [[NSMutableDictionary alloc] init];
-    connectCallbacks = [[NSMutableArray alloc] init];
-    messageCallbacks = [[NSMutableArray alloc] init];
     
 }
 
@@ -38,7 +36,7 @@
 
 -(void)onConnect:(CDVInvokedUrlCommand *)command
 {
-    [connectCallbacks addObject: command.callbackId];
+    connectCallbackId = command.callbackId;
     
     NSArray *connected = [[PBPebbleCentral defaultCentral] connectedWatches];
     if ([connected count] > 0) {
@@ -52,7 +50,7 @@
 
 -(void)onAppMessageReceived:(CDVInvokedUrlCommand *)command
 {
-    [messageCallbacks addObject: command.callbackId];
+    messageCallbackId = command.callbackId;
 }
 
 -(void)launchApp:(CDVInvokedUrlCommand *)command
@@ -144,11 +142,9 @@
             [returnInfo setObject:[update objectForKey:key] forKey:[key stringValue]];
         }
         
-        for(NSString* messageCallback in messageCallbacks) {
-            [self notifyKeepCallback:messageCallback
-                          withStatus:CDVCommandStatus_OK
-                         andWithData:returnInfo];
-        }
+        [self notifyKeepCallback:messageCallbackId
+                      withStatus:CDVCommandStatus_OK
+                     andWithData:returnInfo];
         
         return YES;
     }];
@@ -209,11 +205,9 @@
     NSMutableDictionary* returnInfo = [[NSMutableDictionary alloc]
                                 initWithObjectsAndKeys:[watch name],@"name", nil];
     
-    for(NSString *connectCallback in connectCallbacks) {
-        [self notifyKeepCallback: connectCallback
-                      withStatus: CDVCommandStatus_OK
-                     andWithData: returnInfo];
-    }
+    [self notifyKeepCallback: connectCallbackId
+                  withStatus: CDVCommandStatus_OK
+                 andWithData: returnInfo];
 }
 
 -(void)watchDisconnected:(PBWatch*) watch
@@ -223,11 +217,9 @@
     NSMutableDictionary* returnInfo = [[NSMutableDictionary alloc]
                                        initWithObjectsAndKeys:[watch name],@"name", nil];
     
-    for(NSString *connectCallback in connectCallbacks) {
-        [self notifyKeepCallback: connectCallback
-                      withStatus: CDVCommandStatus_ERROR
-                     andWithData: returnInfo];
-    }
+    [self notifyKeepCallback: connectCallbackId
+                  withStatus: CDVCommandStatus_ERROR
+                 andWithData: returnInfo];
 }
 
 #pragma mark delegate methods

@@ -15,7 +15,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
 import java.lang.IllegalArgumentException;
@@ -27,8 +26,8 @@ public class PebblePlugin extends CordovaPlugin {
     private final String TAG = this.getClass().getSimpleName();
 
     private UUID appUuid;
-    private ArrayList<CallbackContext> connectCallbacks;
-    private ArrayList<CallbackContext> messageCallbacks;
+    private CallbackContext connectCallback;
+    private CallbackContext messageCallback;
     private PebbleKit.PebbleDataReceiver messageReceiver;
     private static int connectionId;
 
@@ -37,9 +36,6 @@ public class PebblePlugin extends CordovaPlugin {
         super.initialize(cordova, webView);
 
         LOG.d(TAG, "initialize");
-
-        connectCallbacks = new ArrayList<CallbackContext>();
-        messageCallbacks = new ArrayList<CallbackContext>();
 
         PebbleKit.registerPebbleConnectedReceiver(getApplicationContext(), new BroadcastReceiver() {
             @Override
@@ -86,12 +82,12 @@ public class PebblePlugin extends CordovaPlugin {
             // Unregister any existing message listeners
             if(messageReceiver != null) {
                 unregisterMessageReceiver();
-                messageCallbacks = new ArrayList<CallbackContext>();
+                messageCallback = null;
             }
 
             return true;
         } else if (action.equals("onConnect")) {
-            connectCallbacks.add(callbackContext);
+            connectCallback = callbackContext;
 
             if(PebbleKit.isWatchConnected(getApplicationContext())) {
                 connect();
@@ -103,8 +99,7 @@ public class PebblePlugin extends CordovaPlugin {
                 registerMessageReceiver();
             }
 
-            messageCallbacks.add(callbackContext);
-
+            messageCallback = callbackContext;
             return true;
         } else if (action.equals("launchApp")) {
             PebbleKit.startAppOnPebble(getApplicationContext(), this.appUuid);
@@ -133,8 +128,10 @@ public class PebblePlugin extends CordovaPlugin {
             for(Iterator<String> keys = object.keys(); keys.hasNext();) {
                 String key = keys.next();
                 Object val = object.get(key);
-                if(val instanceof Integer) {
-                    data.addInt32(Integer.parseInt(key), (Integer)val);
+
+                // If long is greater than int32.MaxValue then you're going to have issues :0
+                if(val instanceof Integer || val instanceof Long) {
+                    data.addInt32(Integer.parseInt(key), (Integer) val);
                 } else {
                     data.addString(Integer.parseInt(key), (String)val);
                 }
@@ -160,28 +157,22 @@ public class PebblePlugin extends CordovaPlugin {
             e.printStackTrace();
         }
 
-        synchronized (connectCallbacks) {
-            for(CallbackContext connectCallback : connectCallbacks) {
-                keepSuccessCallback(connectCallback, o);
-            }
+        synchronized (connectCallback) {
+            keepSuccessCallback(connectCallback, o);
         }
     }
 
     private void disconnect() {
         LOG.d(TAG, "disconnect");
 
-        synchronized (connectCallbacks) {
-            for(CallbackContext connectCallback : connectCallbacks) {
-                keepCallback(PluginResult.Status.ERROR, connectCallback, null);
-            }
+        synchronized (connectCallback) {
+            keepCallback(PluginResult.Status.ERROR, connectCallback, null);
         }
     }
 
     private void appMessageReceived(JSONObject data) {
-        synchronized (messageCallbacks) {
-            for(CallbackContext messageCallback : messageCallbacks) {
-                keepSuccessCallback(messageCallback, data);
-            }
+        synchronized (messageCallback) {
+            keepSuccessCallback(messageCallback, data);
         }
     }
 
