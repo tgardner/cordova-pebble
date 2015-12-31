@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:rim="http://www.blackberry.com/ns/widgets"
-        id="net.trentgardner.cordova.pebble"
-        version="0.0.1">
+        id="cordova-pebble"
+        version="0.0.2">
 
-    <name>Pebble Connector</name>
-    <description>Cordova plugin to implement the Pebble SDK</description>
+    <name>Pebble</name>
+
+    <description>Allows communication with Pebble smartwatch applications and Cordova applications.</description>
+
     <author>Trent Gardner</author>
+
+    <license>Apache 2.0</license>
+
+    <keywords>Pebble, Android, Watch, Wearble, iOS</keywords>
+
+    <repo>https://github.com/tgardner/cordova-pebble.git</repo>
+
+    <issue>https://github.com/tgardner/cordova-pebble/issues</issue>
     
     <js-module src="www/pebble.js" name="Pebble">
         <clobbers target="Pebble" />
@@ -28,7 +37,6 @@
         
         <source-file src="lib/android/pebblekit-3.0.0-eclipse.jar" target-dir="libs/" />
         <source-file src="src/android/PebblePlugin.java" target-dir="src/net/trentgardner/cordova/pebble" />
-
     </platform>
 
     <platform name="ios">

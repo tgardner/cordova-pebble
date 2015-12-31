@@ -1,0 +1,38 @@
+{
+  "name": "cordova-pebble",
+  "version": "0.0.2",
+  "description": "Allows communication with Pebble smartwatch applications and Cordova applications.",
+  "cordova": {
+    "id": "cordova-pebble",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tgardner/cordova-pebble.git"
+  },
+  "keywords": [
+    "Pebble",
+    "Android",
+	"iOS",
+    "Watch",
+    "Wearble",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.1.0"
+    }
+  ],
+  "author": "Trent Gardner",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/tgardner/cordova-pebble/issues"
+  },
+  "homepage": "https://github.com/tgardner/cordova-pebble#readme"
+}
