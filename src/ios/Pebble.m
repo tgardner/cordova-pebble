@@ -19,19 +19,13 @@
 -(void)setAppUUID:(CDVInvokedUrlCommand *)command
 {
     NSString *uuidString = [command.arguments objectAtIndex:0];
+    NSLog(@"PGPebble appUUID = %@", uuidString);
     
-    uuid_t uuidBytes;
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
-    [uuid getUUIDBytes:uuidBytes];
-    
-    @try {
-        NSLog(@"PGPebble setAppUUID() with %@", uuidString);
-        [[PBPebbleCentral defaultCentral] setAppUUID:[NSData dataWithBytes:uuidBytes length:16]];
-        [self notifyCallback:command.callbackId isSuccess:true];
-    }
-    @catch (NSException *exception) {
-        [self notifyCallback:command.callbackId isSuccess:false withReason:exception.reason];
-    }
+    [PBPebbleCentral defaultCentral].appUUID = uuid;
+    [[PBPebbleCentral defaultCentral] run];
+
+    [self notifyCallback:command.callbackId isSuccess:true];
 }
 
 -(void)onConnect:(CDVInvokedUrlCommand *)command
@@ -39,12 +33,11 @@
     connectCallbackId = command.callbackId;
     
     NSArray *connected = [[PBPebbleCentral defaultCentral] connectedWatches];
-    if ([connected count] > 0) {
-        NSLog(@"Pebble watch found at startup");
-        
-        for (PBWatch* watch in connected) {
-            [self watchConnected:watch];
-        }
+
+    NSLog(@"%d Pebble device(s) found at startup", [connected count]);
+
+    for (PBWatch* watch in connected) {
+        [self watchConnected:watch];
     }
 }
 

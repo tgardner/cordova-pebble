@@ -1,6 +1,6 @@
 {
   "name": "cordova-pebble",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Allows communication with Pebble smartwatch applications and Cordova applications.",
   "cordova": {
     "id": "cordova-pebble",
@@ -16,7 +16,7 @@
   "keywords": [
     "Pebble",
     "Android",
-	"iOS",
+    "iOS",
     "Watch",
     "Wearble",
     "ecosystem:cordova",

@@ -2,72 +2,67 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-pebble"
-        version="0.0.2">
+        version="0.0.3">
 
-    <name>Pebble</name>
+  <name>Pebble</name>
 
-    <description>Allows communication with Pebble smartwatch applications and Cordova applications.</description>
+  <description>Allows communication with Pebble smartwatch applications and Cordova applications.</description>
 
-    <author>Trent Gardner</author>
+  <author>Trent Gardner</author>
 
-    <license>Apache 2.0</license>
+  <license>Apache 2.0</license>
 
-    <keywords>Pebble, Android, Watch, Wearble, iOS</keywords>
+  <keywords>Pebble, Android, Watch, Wearble, iOS</keywords>
 
-    <repo>https://github.com/tgardner/cordova-pebble.git</repo>
+  <repo>https://github.com/tgardner/cordova-pebble.git</repo>
 
-    <issue>https://github.com/tgardner/cordova-pebble/issues</issue>
-    
-    <js-module src="www/pebble.js" name="Pebble">
-        <clobbers target="Pebble" />
-    </js-module>
+  <issue>https://github.com/tgardner/cordova-pebble/issues</issue>
 
-    <engines>
-        <engine name="cordova" version=">=3.1.0" />
-    </engines>
+  <js-module src="www/pebble.js" name="Pebble">
+    <clobbers target="Pebble" />
+  </js-module>
 
-    <platform name="android">
+  <engines>
+    <engine name="cordova" version=">=3.1.0" />
+  </engines>
 
-        <config-file target="res/xml/config.xml" parent="/*">
-            <feature name="pebble" >
-                <param name="android-package" value="net.trentgardner.cordova.pebble.PebblePlugin"/>
-                <param name="onload" value="true" />
-            </feature>
-        </config-file>
-        
-        <source-file src="lib/android/pebblekit-3.0.0-eclipse.jar" target-dir="libs/" />
-        <source-file src="src/android/PebblePlugin.java" target-dir="src/net/trentgardner/cordova/pebble" />
-    </platform>
+  <platform name="android">
 
-    <platform name="ios">
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="pebble" >
+        <param name="android-package" value="net.trentgardner.cordova.pebble.PebblePlugin"/>
+        <param name="onload" value="true" />
+      </feature>
+    </config-file>
 
-        <!-- config file -->
-        <config-file target="config.xml" parent="/*">
-            <feature name="pebble">
-                <param name="ios-package" value="Pebble" />
-            </feature>
-        </config-file>
+    <source-file src="lib/android/pebblekit-3.1.0-eclipse.jar" target-dir="libs/" />
+    <source-file src="src/android/PebblePlugin.java" target-dir="src/net/trentgardner/cordova/pebble" />
+  </platform>
 
-        <config-file target="*-Info.plist" parent="UISupportedExternalAccessoryProtocols">
-            <array>
-                <string>com.getpebble.public</string>
-            </array>
-        </config-file>
+  <platform name="ios">
+
+    <!-- config file -->
+    <config-file target="config.xml" parent="/*">
+      <feature name="pebble">
+        <param name="ios-package" value="Pebble" />
+      </feature>
+    </config-file>
+
+    <config-file target="*-Info.plist" parent="UISupportedExternalAccessoryProtocols">
+      <array>
+        <string>com.getpebble.public</string>
+      </array>
+    </config-file>
 
 
-        <header-file src="src/ios/Pebble.h" />
-        <source-file src="src/ios/Pebble.m" />
+    <header-file src="src/ios/Pebble.h" />
+    <source-file src="src/ios/Pebble.m" />
 
-        <framework src="ExternalAccessory.framework" />
-        <framework src="libz.dylib" />
-        <framework src="CoreBluetooth.framework" />
-        <framework src="CoreMotion.framework" />
-        <framework src="CFNetwork.framework" />
-        <framework src="MessageUI.framework" />
+    <framework src="ExternalAccessory.framework" />
+    <framework src="CoreBluetooth.framework" />
 
-        <framework src="lib/ios/PebbleKit.framework" custom="true"/>
-        <framework src="lib/ios/PebbleVendor.framework" custom="true"/>
+    <framework src="lib/ios/PebbleKit.framework" custom="true"/>
 
-    </platform>
+  </platform>
 
 </plugin>
