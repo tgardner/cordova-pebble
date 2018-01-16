@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-pebble"
-        version="0.0.3">
+        version="1.0.0">
 
   <name>Pebble</name>
 
@@ -18,16 +18,16 @@
 
   <issue>https://github.com/tgardner/cordova-pebble/issues</issue>
 
+  <engines>
+    <engine name="cordova" version=">=3.0.0" />
+    <engine name="cordova-android" version=">=6.3.0"/>
+  </engines>
+
   <js-module src="www/pebble.js" name="Pebble">
     <clobbers target="Pebble" />
   </js-module>
 
-  <engines>
-    <engine name="cordova" version=">=3.1.0" />
-  </engines>
-
   <platform name="android">
-
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="pebble" >
         <param name="android-package" value="net.trentgardner.cordova.pebble.PebblePlugin"/>
@@ -35,7 +35,8 @@
       </feature>
     </config-file>
 
-    <source-file src="lib/android/pebblekit-3.1.0-eclipse.jar" target-dir="libs/" />
+    <framework src="src/android/pebblekit.gradle" custom="true" type="gradleReference"/>
+    <lib-file src="lib/android/pebblekit-4.0.1.aar"/>
     <source-file src="src/android/PebblePlugin.java" target-dir="src/net/trentgardner/cordova/pebble" />
   </platform>
 
