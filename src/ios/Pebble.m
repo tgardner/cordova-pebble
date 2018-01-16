@@ -34,7 +34,7 @@
     
     NSArray *connected = [[PBPebbleCentral defaultCentral] connectedWatches];
 
-    NSLog(@"%d Pebble device(s) found at startup", [connected count]);
+    NSLog(@"%lu Pebble device(s) found at startup", (unsigned long)[connected count]);
 
     for (PBWatch* watch in connected) {
         [self watchConnected:watch];
