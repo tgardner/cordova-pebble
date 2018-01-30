@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-pebble"
-        version="1.0.0">
+        version="1.0.1">
 
   <name>Pebble</name>
 
@@ -55,14 +55,13 @@
       </array>
     </config-file>
 
-
     <header-file src="src/ios/Pebble.h" />
     <source-file src="src/ios/Pebble.m" />
 
     <framework src="ExternalAccessory.framework" />
     <framework src="CoreBluetooth.framework" />
 
-    <framework src="lib/ios/PebbleKit.framework" custom="true"/>
+    <framework src="lib/ios/PebbleKit.framework" custom="true" embed="true" />
 
   </platform>
 
