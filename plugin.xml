@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-pebble"
-        version="1.0.1">
+        version="1.0.2">
 
   <name>Pebble</name>
 
@@ -21,6 +21,7 @@
   <engines>
     <engine name="cordova" version=">=3.0.0" />
     <engine name="cordova-android" version=">=6.3.0"/>
+    <engine name="cordova-ios" version=">=4.3.0"/>
   </engines>
 
   <js-module src="www/pebble.js" name="Pebble">
@@ -62,6 +63,9 @@
     <framework src="CoreBluetooth.framework" />
 
     <framework src="lib/ios/PebbleKit.framework" custom="true" embed="true" />
+
+    <hook type="after_plugin_install" src="hooks/ios/prerequisites.js"/>
+    <hook type="after_prepare" src="hooks/ios/install_buildphase.js" />
 
   </platform>
 

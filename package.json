@@ -1,6 +1,6 @@
 {
   "name": "cordova-pebble",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Allows communication with Pebble smartwatch applications and Cordova applications.",
   "cordova": {
     "id": "cordova-pebble",
@@ -26,7 +26,8 @@
   "engines": {
     "cordovaDependencies": {
       "7.0.0": {
-        "cordova-android": ">=6.3.0"
+        "cordova-android": ">=6.3.0",
+        "cordova-ios": ">=4.3.0"
       }
     }
   },
