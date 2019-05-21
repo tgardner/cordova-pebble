@@ -1,8 +1,10 @@
-module.exports = function (context) {
+const child_process = require("child_process");
+const q = require("q");
+
+module.exports = function () {
   console.log("Pebble prerequisites");
 
-  var child_process = context.requireCordovaModule('child_process'),
-      deferral = context.requireCordovaModule('q').defer();
+  var deferral = q.defer();
 
   var output = child_process.exec('npm install', {cwd: __dirname},
       function (error) {

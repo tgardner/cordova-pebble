@@ -1,3 +1,7 @@
+const fs = require("fs");
+const q = require("q");
+const path = require("path");
+const xcode = require("xcode");
 
 module.exports = function(context) {
     // make sure ios platform is part of install
@@ -5,11 +9,7 @@ module.exports = function(context) {
         return;
     }
 
-    var fs = context.requireCordovaModule('fs'),
-        path = context.requireCordovaModule('path'),
-        Q = context.requireCordovaModule('q'),
-        xcode = context.requireCordovaModule('xcode'),
-        deferral = new Q.defer();
+    var deferral = new q.defer();
 
     var iosPlatform = path.join(context.opts.projectRoot, 'platforms/ios/');
     var iosFolder = fs.existsSync(iosPlatform) ? iosPlatform : context.opts.projectRoot;
