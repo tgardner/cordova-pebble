@@ -156,18 +156,10 @@ public class PebblePlugin extends CordovaPlugin {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        synchronized (connectCallback) {
-            keepSuccessCallback(connectCallback, o);
-        }
     }
 
     private void disconnect() {
         LOG.d(TAG, "disconnect");
-
-        synchronized (connectCallback) {
-            keepCallback(PluginResult.Status.ERROR, connectCallback, null);
-        }
     }
 
     private void appMessageReceived(JSONObject data) {
